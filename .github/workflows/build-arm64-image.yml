@@ -1,0 +1,114 @@
+name: build-arm64-image
+
+# Builds the linux/arm64 Docker image defined in ./Dockerfile, exports it as a
+# plain tar (docker save) and publishes it under the rolling release tag "arm64".
+# Armbian usage: bash build/load.sh
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: Runner label to build on
+        required: false
+        default: ubuntu-24.04-arm
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-arm64-image
+  cancel-in-progress: true
+
+jobs:
+  image:
+    name: gallery (linux/arm64)
+    runs-on: ${{ github.event.inputs.runner || 'ubuntu-24.04-arm' }}
+    timeout-minutes: 90
+
+    env:
+      IMAGE_NAME: gallery:arm64
+      ASSET: gallery-linux-arm64.tar.gz
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check build host
+        run: |
+          set -e
+          echo "machine: $(uname -m)"
+          docker version --format 'docker {{.Server.Version}}'
+          docker run --rm --platform linux/arm64 alpine:latest uname -m
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build app bundle
+        run: npm run create-release -- --languages=en,cn
+
+      - name: Stage bundle for the image build
+        run: |
+          set -e
+          # runtime diagnostics fixtures are not needed inside the image
+          rm -rf release/src/backend/model/diagnostics/image_formats
+          rm -rf pigallery2-release
+          mv release pigallery2-release
+          du -sh pigallery2-release
+
+      - name: Build image
+        run: |
+          set -e
+          docker build --pull --platform linux/arm64 \
+            --label "org.opencontainers.image.revision=${GITHUB_SHA}" \
+            --label "org.opencontainers.image.source=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}" \
+            -t "$IMAGE_NAME" -f Dockerfile .
+
+      - name: Export tar
+        run: |
+          set -e
+          arch=$(docker image inspect "$IMAGE_NAME" --format '{{.Architecture}}')
+          os=$(docker image inspect "$IMAGE_NAME" --format '{{.Os}}')
+          echo "image platform: $os/$arch"
+          if [ "$arch" != "arm64" ]; then
+            echo "refusing to publish: expected arm64, got $os/$arch" >&2
+            exit 1
+          fi
+          mkdir -p build
+          docker save "$IMAGE_NAME" -o build/image.tar
+          gzip -6 -c build/image.tar > "build/$ASSET"
+          rm -f build/image.tar
+          ls -lh build
+          sha256sum "build/$ASSET" | tee "build/$ASSET.sha256"
+
+      - name: Publish release (rolling tag arm64)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          notes="linux/arm64 Docker image built from ${GITHUB_SHA} by ${GITHUB_WORKFLOW}.
+          
+          On Armbian:
+          
+              git clone https://github.com/${GITHUB_REPOSITORY}.git
+              cd gallery && bash build/load.sh
+          
+          Loaded image: ${IMAGE_NAME}"
+          gh release delete arm64 --cleanup-tag --yes 2>/dev/null || true
+          gh release create arm64 \
+            "build/$ASSET" "build/$ASSET.sha256" \
+            --title "arm64 docker image" \
+            --notes "$notes"
+
+      - name: Keep a copy as a workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gallery-linux-arm64
+          path: build/gallery-linux-arm64.tar.gz
+          retention-days: 1

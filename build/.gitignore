@@ -1,0 +1,4 @@
+# the image tar is a release asset, not tracked in git
+*.tar
+*.tar.gz
+*.sha256
