@@ -6,6 +6,9 @@ import * as util from 'util';
 import * as zip from 'gulp-zip';
 import * as ts from 'gulp-typescript';
 import * as sourcemaps from 'gulp-sourcemaps';
+// xml2js ships no type declarations (@types/xml2js is not in the lockfile)
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import * as xml2js from 'xml2js';
 import * as child_process from 'child_process';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
