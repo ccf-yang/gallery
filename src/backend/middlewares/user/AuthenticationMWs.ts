@@ -1,0 +1,218 @@
+import {NextFunction, Request, Response} from 'express';
+import {ErrorCodes, ErrorDTO} from '../../../common/entities/Error';
+import {UserRoles,} from '../../../common/entities/UserDTO';
+import {ObjectManagers} from '../../model/ObjectManagers';
+import {Config} from '../../../common/config/private/Config';
+import {Utils} from '../../../common/Utils';
+import * as path from 'path';
+import {Logger} from '../../Logger';
+
+const LOG_TAG = 'AuthenticationMWs';
+
+export class AuthenticationMWs {
+
+  public static async tryAuthenticate(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    if (Config.Users.authenticationRequired === false) {
+      const user = ObjectManagers.getInstance().UserManager.getUnAuthenticatedUser();
+      req.session.context = await ObjectManagers.getInstance().SessionManager.buildContext(user);
+      return next();
+    }
+    return next();
+  }
+
+  public static async authenticate(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    if (Config.Users.authenticationRequired === false) {
+      const user = ObjectManagers.getInstance().UserManager.getUnAuthenticatedUser();
+      req.session.context = await ObjectManagers.getInstance().SessionManager.buildContext(user);
+      return next();
+    }
+
+    // if already authenticated, do not try to use sharing authentication
+    if (typeof req.session.context !== 'undefined') {
+      // fix context. projectionQuery gets lost in the session between calls
+      if (req.session?.context && req.session.context?.user?.projectionKey && (!req.session.context?.projectionQuery || Object.keys(req.session.context?.projectionQuery || {}).length === 0)) {
+        req.session.context = await ObjectManagers.getInstance().SessionManager.buildContext(req.session.context.user);
+      }
+      // auto extend session if rememberMe is set
+      if (req.session.rememberMe) {
+        req.sessionOptions.expires = new Date(
+          Date.now() + Config.Server.sessionTimeout
+        );
+        req.session.expires = req.sessionOptions.expires.getTime();
+      }
+      return next();
+    }
+
+    res.status(401);
+    return next(new ErrorDTO(ErrorCodes.NOT_AUTHENTICATED));
+  }
+
+  public static normalizePathParam(
+    paramName: string
+  ): (req: Request, res: Response, next: NextFunction) => void {
+    return function normalizePathParam(
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ): void {
+      req.params[paramName] = path
+        .normalize(req.params[paramName] || path.sep)
+        // eslint-disable-next-line no-useless-escape
+        .replace(/^(\.\.[\/\\])+/, '');
+      return next();
+    };
+  }
+
+
+  public static authoriseMetaFiles(
+    paramName: string
+  ): (req: Request, res: Response, next: NextFunction) => Promise<void> {
+    return async function authoriseMetaFiles(
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ): Promise<void> {
+      try {
+        const p: string = req.params[paramName];
+
+        if (!await ObjectManagers.getInstance().GalleryManager.authoriseMetaFile(req.session.context, p)) {
+          res.sendStatus(403);
+          return;
+        }
+
+        return next();
+      } catch (e) {
+        // On error, fail closed to be safe
+        Logger.warn(LOG_TAG, 'authoriseMedia error:', e);
+        res.sendStatus(403);
+        return;
+      }
+    };
+  }
+
+  public static authoriseMedia(
+    paramName: string
+  ): (req: Request, res: Response, next: NextFunction) => Promise<void> {
+    return async function authoriseMedia(
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ): Promise<void> {
+      try {
+        const mediaRelPath: string = req.params[paramName];
+
+        if (!await ObjectManagers.getInstance().GalleryManager.authoriseMedia(req.session.context, mediaRelPath)) {
+          res.sendStatus(403);
+          return;
+        }
+
+
+        return next();
+      } catch (e) {
+        // On error, fail closed to be safe
+        Logger.warn(LOG_TAG, 'authoriseMedia error:', e);
+        res.sendStatus(403);
+        return;
+      }
+    };
+  }
+
+  public static authorise(
+    role: UserRoles
+  ): (req: Request, res: Response, next: NextFunction) => void {
+    return function authorise(
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ): void {
+      if (req.session.context?.user.role < role) {
+        res.status(401);
+        return next(new ErrorDTO(ErrorCodes.NOT_AUTHORISED));
+      }
+      return next();
+    };
+  }
+
+  public static inverseAuthenticate(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): void {
+    if (typeof req.session.context?.user !== 'undefined') {
+      return next(new ErrorDTO(ErrorCodes.ALREADY_AUTHENTICATED));
+    }
+    return next();
+  }
+
+  public static async login(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void | Response> {
+    if (Config.Users.authenticationRequired === false) {
+      return res.sendStatus(404);
+    }
+
+    // not enough parameters
+    if (
+      typeof req.body === 'undefined' ||
+      typeof req.body.loginCredential === 'undefined' ||
+      typeof req.body.loginCredential.username !== 'string' ||
+      typeof req.body.loginCredential.password !== 'string' ||
+      req.body.loginCredential.username.length === 0 ||
+      req.body.loginCredential.password.length === 0
+    ) {
+      Logger.warn(LOG_TAG, 'Failed login from IP `' + req.ip + '` no user or password provided');
+      return next(
+        new ErrorDTO(
+          ErrorCodes.INPUT_ERROR,
+          'not all parameters are included for loginCredential'
+        )
+      );
+    }
+    try {
+      // let's find the user
+      const user = Utils.clone(
+        await ObjectManagers.getInstance().UserManager.findOne({
+          name: req.body.loginCredential.username,
+          password: req.body.loginCredential.password,
+        })
+      );
+      delete user.password;
+      req.session.context = await ObjectManagers.getInstance().SessionManager.buildContext(user);
+      req.session.rememberMe = req.body.loginCredential.rememberMe;
+      if (req.session.rememberMe) {
+        req.sessionOptions.expires = new Date(
+          Date.now() + Config.Server.sessionTimeout
+        );
+        req.session.expires = req.sessionOptions.expires.getTime();
+      }
+      return next();
+    } catch (err) {
+      Logger.warn(LOG_TAG, 'Failed login from IP `' + req.ip + '` for user:' + req.body.loginCredential.username
+        + ', bad password');
+      return next(
+        new ErrorDTO(
+          ErrorCodes.CREDENTIAL_NOT_FOUND,
+          'credentials not found during login',
+          err
+        )
+      );
+    }
+  }
+
+  public static logout(req: Request, res: Response, next: NextFunction): void {
+    delete req.session.context;
+    return next();
+  }
+
+
+}

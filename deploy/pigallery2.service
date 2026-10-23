@@ -1,0 +1,24 @@
+[Unit]
+Description=PiGallery2 slim photo and video gallery
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pigallery2
+Group=pigallery2
+WorkingDirectory=/opt/pigallery2
+Environment=NODE_ENV=production
+# Node 22 is required (see package.json engines)
+ExecStart=/usr/bin/node /opt/pigallery2/src/backend/index.js
+Restart=on-failure
+RestartSec=5
+# The gallery is read-only for the media folder; the service only writes to its data folder.
+ReadWritePaths=/opt/pigallery2/data
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
