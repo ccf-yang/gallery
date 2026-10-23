@@ -51,7 +51,26 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Build app bundle
-        run: npm run create-release -- --languages=en,cn
+        run: |
+          set -o pipefail
+          echo "--- resolved build toolchain versions ---"
+          npm ls webpack webpack-merge html-webpack-plugin @angular-devkit/build-angular @angular-builders/custom-webpack || true
+          echo "--- webpack copies on disk ---"
+          for d in $(find node_modules -maxdepth 4 -type d -name webpack); do
+            echo "$d $(node -p "require('./$d/package.json').version" 2>/dev/null)"
+          done
+          echo "--- ng build ---"
+          npm run create-release -- --languages=en,cn
+
+      - name: Dump Angular error log
+        if: failure()
+        run: |
+          for f in /tmp/ng-*/angular-errors.log; do
+            [ -f "$f" ] || continue
+            echo "===== $f ====="
+            cat "$f"
+          done
+          tail -n 120 ~/.npm/_logs/*-debug-*.log 2>/dev/null || true
 
       - name: Stage bundle for the image build
         run: |
