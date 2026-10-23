@@ -1,0 +1,15 @@
+node_modules/
+release/
+pigallery2-release/
+dist/
+.angular/
+out-tsc/
+data/
+config.json
+diagnostics-config.json
+*.log
+.cache/
+tmp/
+locale.source.xlf
+src/frontend/translate/ts-only-msg.*.xlf
+pigallery2.zip
