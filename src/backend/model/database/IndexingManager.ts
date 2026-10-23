@@ -380,7 +380,7 @@ export class IndexingManager {
     const photoRepository = connection.getRepository(PhotoEntity);
     const videoRepository = connection.getRepository(VideoEntity);
     // save media
-    let indexedMedia = await mediaRepository
+    const indexedMedia = await mediaRepository
       .createQueryBuilder('media')
       .where('media.directory = :dir', {
         dir: parentDirId,
@@ -431,15 +431,13 @@ export class IndexingManager {
     await this.saveChunk(photoRepository, mediaChange.insertP, 100);
     await this.saveChunk(videoRepository, mediaChange.insertV, 100);
 
-    indexedMedia = await mediaRepository
-      .createQueryBuilder('media')
-      .where('media.directory = :dir', {
-        dir: parentDirId,
-      })
-      .select(['media.name', 'media.id'])
-      .getMany();
-
-    await mediaRepository.remove(indexedMedia);
+    // The loop above spliced out every media that is still on disk, so what is
+    // left in `indexedMedia` are rows whose file is gone. Remove only those,
+    // in chunks: a single remove() over a big directory makes SQLite hit its
+    // "Expression tree is too large (maximum depth 1000)" limit.
+    await mediaRepository.remove(indexedMedia, {
+      chunk: 100,
+    });
   }
 
   private checkSavingReady(): void {
