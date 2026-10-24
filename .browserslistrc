@@ -1,0 +1,9 @@
+# 产物要能在老设备上跑：Angular 链接器会输出 class 静态代码块（static{...}），
+# Safari/iOS 要到 16.4 才支持，16.3 直接语法报错 -> 页面永远停在 index.html 的 Loading 占位。
+# 这里显式把范围放宽到 iOS/Safari 14，让构建把它们降级掉。
+last 2 Chrome major versions
+last 2 Firefox major versions
+last 2 Edge major versions
+Safari >= 14
+iOS >= 14
+not dead
