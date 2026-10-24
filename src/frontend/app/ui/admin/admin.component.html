@@ -12,7 +12,9 @@
             {{notification.details | json}}
             <ng-container *ngIf="notification.request">
               <br/>
-              Request: "{{notification.request.method}}", url: "{{notification.request.url}}", status code:
+              <span i18n="@@admin.requestLabel">Request:</span> "{{notification.request.method}}",
+              <span i18n="@@admin.urlLabel">url:</span> "{{notification.request.url}}",
+              <span i18n="@@admin.statusCodeLabel">status code:</span>
               "{{notification.request.statusCode}}"
             </ng-container>
           </div>

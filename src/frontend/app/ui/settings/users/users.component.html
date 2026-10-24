@@ -8,7 +8,7 @@
     </div>
   </div>
 
-  <div [hidden]="!error" class="alert alert-danger" role="alert"><strong>Error: </strong>{{ error }}</div>
+  <div [hidden]="!error" class="alert alert-danger" role="alert"><strong i18n="@@common.errorPrefix">Error: </strong>{{ error }}</div>
 
   <table class="table table-hover">
     <thead>
@@ -54,7 +54,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="userModalLabel" i18n>Add new User</h5>
-        <button type="button" class="btn-close" (click)="userModal.hide()" data-dismiss="modal" aria-label="Close">
+        <button type="button" class="btn-close" (click)="userModal.hide()" data-dismiss="modal" aria-label="Close" i18n-aria-label="@@common.close">
         </button>
       </div>
       <form #NewUserForm="ngForm">
@@ -93,7 +93,7 @@
           <ng-container i18n>Edit user</ng-container>
           <span class="ms-1">{{ editUser?.name }}</span>
         </h5>
-        <button type="button" class="btn-close" (click)="editUserModal.hide()" data-dismiss="modal" aria-label="Close">
+        <button type="button" class="btn-close" (click)="editUserModal.hide()" data-dismiss="modal" aria-label="Close" i18n-aria-label="@@common.close">
         </button>
       </div>
       <form #EditUserForm="ngForm">

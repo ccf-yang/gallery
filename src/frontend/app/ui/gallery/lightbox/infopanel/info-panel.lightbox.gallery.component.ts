@@ -42,6 +42,7 @@ export class InfoPanelLightboxComponent implements OnInit {
   @Output() closed = new EventEmitter();
 
   public readonly searchEnabled: boolean;
+  public readonly starsSuffix = $localize`:@@lightbox.stars:stars`;
   public keywords: { value: string; type: SearchQueryTypes }[] = null;
   public readonly SearchQueryTypes: typeof SearchQueryTypes = SearchQueryTypes;
 

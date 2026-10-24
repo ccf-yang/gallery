@@ -5,6 +5,7 @@ import {ScheduledJobsService} from '../../scheduled-jobs.service';
 import {NotificationService} from '../../../../model/notification.service';
 import {JobDTOUtils} from '../../../../../../common/entities/job/JobDTO';
 import {BackendtextService} from '../../../../model/backendtext.service';
+import {BackendErrorTexts} from '../../../../model/backend-error.texts';
 import {BsModalRef,BsModalService} from 'ngx-bootstrap/modal';
 import {ConfigStyle} from '../../settings.service';
 import { NgIf } from '@angular/common';
@@ -102,7 +103,7 @@ export class JobButtonComponent {
     } catch (err) {
       console.log(err);
       if (err.message) {
-        this.jobError.emit((err as ErrorDTO).message);
+        this.jobError.emit(BackendErrorTexts.localize((err as ErrorDTO).message));
       }
     }
 
@@ -122,7 +123,7 @@ export class JobButtonComponent {
     } catch (err) {
       console.error(err);
       if (err.message) {
-        this.jobError.emit((err as ErrorDTO).message);
+        this.jobError.emit(BackendErrorTexts.localize((err as ErrorDTO).message));
       }
     }
     return false;

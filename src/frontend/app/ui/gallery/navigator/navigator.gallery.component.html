@@ -1,5 +1,5 @@
 <div #navigator class="container-fluid pt-1 pb-1 pe-0 ps-0 bg-body-secondary">
-    <nav class="d-md-flex row" aria-label="breadcrumb">
+    <nav class="d-md-flex row" i18n-aria-label="@@nav.breadcrumb" aria-label="breadcrumb">
         <div class="col-auto">
             <ol *ngIf="isDirectory" id="directory-path" class="mb-0 mt-1 breadcrumb">
                 <li *ngFor="let path of routes | async" class="breadcrumb-item">

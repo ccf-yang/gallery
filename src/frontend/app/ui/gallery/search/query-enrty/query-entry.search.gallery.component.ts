@@ -171,20 +171,20 @@ export class GallerySearchQueryEntryComponent
     switch (type) {
       case '=':
         if (this.IsTextQuery) {
-          return $localize`Exact match (e.g.: bb matches for \' bb \')`;
+          return $localize`:@@search.matchType.exactText:Exact match (e.g.: bb matches for \' bb \')`;
         }
-        return $localize`Exact match`;
+        return $localize`:@@search.matchType.exact:Exact match`;
       case '!=':
-        return $localize`Exact negative match`;
+        return $localize`:@@search.matchType.exactNegative:Exact negative match`;
       // only supported for text queries
       case '~':
-        return $localize`Open and start match (e.g.: bb matches for \'abba\' and \' bb \')`;
+        return $localize`:@@search.matchType.openStart:Open and start match (e.g.: bb matches for \'abba\' and \' bb \')`;
       case '!~':
-        return $localize`Negative open and start  match`;
+        return $localize`:@@search.matchType.openStartNegative:Negative open and start  match`;
       case 'glob':
-        return $localize`glob match (supports wildcards: * and ?)`;
+        return $localize`:@@search.matchType.glob:glob match (supports wildcards: * and ?)`;
       case '!glob':
-        return $localize`Negative glob match`;
+        return $localize`:@@search.matchType.globNegative:Negative glob match`;
     }
   }
 

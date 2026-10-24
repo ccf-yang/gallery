@@ -25,7 +25,7 @@
          (timeupdate)="onVideoProgress()"
          #video>
     <source [src]="gridMedia.getBestFitVideoPath()" (error)="onSourceError()">
-    Something went wrong.
+    <span i18n="@@lightbox.videoFailed">Something went wrong.</span>
   </video>
 
 

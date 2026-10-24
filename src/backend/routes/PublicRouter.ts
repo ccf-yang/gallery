@@ -43,6 +43,10 @@ export class PublicRouter {
       }
       res.cookie(CookieNames.lang, selectedLocale);
       req.localePath = selectedLocale;
+      if (res.tpl) {
+        // index.html 的载入提示要跟着语言走
+        res.tpl.locale = selectedLocale;
+      }
       next();
     };
 

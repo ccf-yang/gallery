@@ -22,7 +22,7 @@
       </div>
     </div>
     <div class="card-body">
-      <div [hidden]="!error" class="alert alert-danger" role="alert"><strong>Error: </strong>{{ error }}</div>
+      <div [hidden]="!error" class="alert alert-danger" role="alert"><strong i18n="@@common.errorPrefix">Error: </strong>{{ error }}</div>
       <ng-container *ngIf="states.value.enabled !== false">
         <ng-container
           *ngTemplateOutlet="Recursion; context:{ rStates: states,topLevel:true,confPath:ConfigPath,skipJobs:true }"

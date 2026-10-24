@@ -10,33 +10,33 @@
       <div class="error-visual">
         ¯\_(ツ)_/¯
       </div>
-      <p class="card-text" i18n>Something went spectacularly wrong. We've sent our best squirrels to look into it.</p>
+      <p class="card-text" i18n="@@err.squirrels">Something went spectacularly wrong. We've sent our best squirrels to look into it.</p>
       <div class="d-grid gap-2 mb-3">
-        <button class="btn btn-primary btn-lg" (click)="onGoBack()" i18n>
+        <button class="btn btn-primary btn-lg" (click)="onGoBack()" i18n="@@err.goBack">
           Take me back to safety
         </button>
       </div>
 
       <div class="text-start mt-4">
         <button class="btn btn-link p-0 text-decoration-none float-end" (click)="toggleHelp()">
-          <span i18n>help me fix this</span> {{ showHelp ? '<<' : '>>' }}
+          <span i18n="@@err.helpToggle">help me fix this</span> {{ showHelp ? '<<' : '>>' }}
         </button>
 
         <div *ngIf="showHelp" class="mt-3 help-section">
-          <h6 i18n>How to debug this?</h6>
-          <p i18n>To enable full debug logging, set the <code>NODE_ENV</code> environment variable to <code>debug</code>.</p>
-          <h6 i18n>How to look at the server logs?</h6>
-          <p i18n>If you're using Docker, you can follow these steps:</p>
+          <h6 i18n="@@err.debugTitle">How to debug this?</h6>
+          <p><span i18n="@@err.debugLog1">To enable full debug logging, set the</span> <code>NODE_ENV</code> <span i18n="@@err.debugLog2">environment variable to</span> <code>debug</code>.</p>
+          <h6 i18n="@@err.serverLogTitle">How to look at the server logs?</h6>
+          <p i18n="@@err.dockerIntro">If you're using Docker, you can follow these steps:</p>
           <ol>
-            <li i18n>List all containers with <code>docker ps -a</code> to get pigallery2's container.</li>
-            <li i18n>Get logs for the pigallery2 container: <code>docker logs -f pigallery2</code></li>
+            <li><span i18n="@@err.dockerPs1">List all containers with</span> <code>docker ps -a</code> <span i18n="@@err.dockerPs2">to get pigallery2's container.</span></li>
+            <li><span i18n="@@err.dockerLogs1">Get logs for the pigallery2 container:</span> <code>docker logs -f pigallery2</code></li>
           </ol>
-          <p i18n>For non-Docker setups, check the standard output of the Node.js process.</p>
-          <h6 i18n>How to look at the client logs?</h6>
-          <p><span i18n>In most browser</span>&nbsp;<a href="https://developer.chrome.com/docs/devtools/open" i18n>right->click inspect</a>&nbsp;<span i18n>should bring up the developer console.</span></p>
+          <p i18n="@@err.nonDocker">For non-Docker setups, check the standard output of the Node.js process.</p>
+          <h6 i18n="@@err.clientLogTitle">How to look at the client logs?</h6>
+          <p><span i18n="@@err.browserConsole1">In most browser</span>&nbsp;<a href="https://developer.chrome.com/docs/devtools/open" i18n="@@err.browserConsole2">right->click inspect</a>&nbsp;<span i18n="@@err.browserConsole3">should bring up the developer console.</span></p>
           <hr>
-          <p i18n>If you're still stuck, please
-            <a href="https://github.com/bpatrik/pigallery2/issues/new?template=bug_report.md" target="_blank" rel="noopener">
+          <p><span i18n="@@err.stuck">If you're still stuck, please</span>
+            <a href="https://github.com/bpatrik/pigallery2/issues/new?template=bug_report.md" target="_blank" rel="noopener" i18n="@@err.reportIssue">
               report the issue on GitHub
             </a>.
           </p>

@@ -177,6 +177,7 @@
                   class="form-select rounded-2"
                   [(ngModel)]="AsOrientationQuery.landscape"
                   (ngModelChange)="onChange()"
+                  i18n-title="@@search.orientationTitle"
                   title="Orientation"
                   required>
             <option [ngValue]="true" i18n>Landscape</option>
@@ -220,7 +221,7 @@
                     (ngModelChange)="onChange()"
                     [id]="'date_pattern-select'+id"
                     [name]="'date_pattern-select'+id"
-                    title="Date Pattern"
+                    i18n-title="@@search.datePatternTitle" title="Date Pattern"
                     required>
               <option [ngValue]="DatePatternFrequency.days_ago" i18n>Day(s) ago</option>
               <option [ngValue]="DatePatternFrequency.weeks_ago" i18n>Week(s) ago</option>

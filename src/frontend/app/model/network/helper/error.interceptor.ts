@@ -5,6 +5,7 @@ import {catchError} from 'rxjs/operators';
 import {AuthenticationService} from '../authentication.service';
 import {NavigationService} from '../../navigation.service';
 import {ErrorCodes} from '../../../../../common/entities/Error';
+import {BackendErrorTexts} from '../../../backend-error.texts';
 
 
 @Injectable()
@@ -35,7 +36,7 @@ export class ErrorInterceptor implements HttpInterceptor {
           this.injector.get(NavigationService).toError();
         }
 
-        const error = err.error.error || err.error.message || err.statusText;
+        const error = BackendErrorTexts.localize(err.error.error) || err.error.message || err.statusText;
         return throwError(error);
       })
     );

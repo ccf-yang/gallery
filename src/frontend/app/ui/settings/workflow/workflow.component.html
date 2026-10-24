@@ -1,4 +1,4 @@
-<div [hidden]="!error" class="alert alert-danger" role="alert"><strong>Error: </strong>{{ error }}</div>
+<div [hidden]="!error" class="alert alert-danger" role="alert"><strong i18n="@@common.errorPrefix">Error: </strong>{{ error }}</div>
 <div *ngFor="let schedule of sortedSchedules() as sortedSchedules; let i= index">
   <div
     class="card bg-body-tertiary mt-2 mb-2  no-changed-settings {{shouldIdent(schedule,sortedSchedules[i-1])? 'ms-4' : ''}}">
@@ -10,7 +10,7 @@
             triggers="mouseenter:mouseleave"
             placement="bottom"
             container="body"
-            [popover]="'Unknown job type: ' + schedule.jobName"
+            [popover]="unknownJobTypePrefix + ' ' + schedule.jobName"
             class="text-danger me-2">
           <ng-icon name="ionWarningOutline"></ng-icon>
           </span>
@@ -237,7 +237,7 @@
                     [id]="configEntry.id+'_'+i"
                     [name]="configEntry.id+'_'+i"
                     (change)="onChange($event)"
-                    placeholder="Search Query">
+                    i18n-placeholder="@@settings.searchQueryPlaceholder" placeholder="Search Query">
                   </app-gallery-search-field>
 
                   <select
@@ -259,7 +259,7 @@
                            [class.mb-3]="settingsService.configStyle == ConfigStyle.full">
                         <label class="col-md-2 control-label"
                                [for]="configEntry.id+'_'+i">
-                          <ng-container>Search Query</ng-container>
+                          <ng-container i18n="@@settings.searchQueryLabel">Search Query</ng-container>
                           - {{ (j + 1) }}</label>
                         <div class="col-md-10">
                           <div class="input-group">
@@ -268,7 +268,7 @@
                               [id]="'sq_'+configEntry.id+'_'+i+'_'+j"
                               [name]="'sq_'+configEntry.id+'_'+i+'_'+j"
                               (change)="onChange($event)"
-                              placeholder="Search Query">
+                              i18n-placeholder="@@settings.searchQueryPlaceholder" placeholder="Search Query">
                             </app-gallery-search-field>
                           </div>
                           <small class="form-text text-muted" *ngIf="settingsService.configStyle == ConfigStyle.full"
@@ -409,7 +409,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="jobModalLabel" i18n>Add new job</h5>
-        <button type="button" class="btn-close" (click)="jobModal.hide()" data-dismiss="modal" aria-label="Close">
+        <button type="button" class="btn-close" (click)="jobModal.hide()" data-dismiss="modal" aria-label="Close" i18n-aria-label="@@common.close">
         </button>
       </div>
       <form #jobModalForm="ngForm">

@@ -7,6 +7,7 @@ import {Config} from '../../../../common/config/public/Config';
 import {Utils} from '../../../../common/Utils';
 import {CustomHeaders} from '../../../../common/CustomHeaders';
 import {VersionService} from '../version.service';
+import {BackendErrorTexts} from '../backend-error.texts';
 import {lastValueFrom, Observable, tap} from 'rxjs';
 
 @Injectable()
@@ -204,7 +205,7 @@ export class NetworkService {
       return Promise.reject(error);
     }
     // instead of just logging it to the console
-    return Promise.reject((error as ErrorDTO).message || error || 'Server error');
+    return Promise.reject(BackendErrorTexts.localize((error as ErrorDTO).message) || error || 'Server error');
   }
 
 }

@@ -2,6 +2,7 @@ import {Component, Input, OnChanges, OnDestroy, OnInit, ViewChild} from '@angula
 import {AuthenticationService} from '../../../model/network/authentication.service';
 import {NavigationService} from '../../../model/navigation.service';
 import {NotificationService} from '../../../model/notification.service';
+import {BackendErrorTexts} from '../../../model/backend-error.texts';
 import {ConfigStyle, SettingsService} from '../settings.service';
 import {WebConfig} from '../../../../../common/config/private/WebConfig';
 import {JobProgressDTO} from '../../../../../common/entities/job/JobProgressDTO';
@@ -314,7 +315,7 @@ export class TemplateComponent implements OnInit, OnChanges, OnDestroy, ISetting
     } catch (err) {
       console.error(err);
       if (err.message) {
-        this.error = (err as ErrorDTO).message;
+        this.error = BackendErrorTexts.localize((err as ErrorDTO).message);
       }
     }
 

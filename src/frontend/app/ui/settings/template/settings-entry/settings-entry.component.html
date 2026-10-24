@@ -21,6 +21,7 @@
           [title]="title"
           [disabled]="state.readonly || Disabled"
           (change)="onChange($event)"
+          i18n-placeholder="@@settings.searchQueryPlaceholder"
           placeholder="Search Query">
         </app-gallery-search-field>
 
@@ -97,7 +98,7 @@
             <div class="modal-header">
               <h5 class="modal-title" i18n>Add new theme</h5>
               <button type="button" class="btn-close" (click)="hideNewThemeModal()" data-dismiss="modal"
-                      aria-label="Close">
+                      aria-label="Close" i18n-aria-label="@@common.close">
               </button>
             </div>
             <div class="modal-body">
@@ -192,7 +193,7 @@
             <div class="modal-header">
               <h5 class="modal-title" i18n>Icon</h5>
               <button type="button" class="btn-close" (click)="hideIconModal()" data-dismiss="modal"
-                      aria-label="Close">
+                      aria-label="Close" i18n-aria-label="@@common.close">
               </button>
             </div>
             <div class="modal-body">
@@ -270,6 +271,7 @@
               <div class="col"
                    *ngIf="link.type === NavigationLinkTypes.url || link.type === NavigationLinkTypes.search">
                 <input type="text" class="form-control"
+                       i18n-placeholder="@@common.namePlaceholder"
                        placeholder="Name"
                        [(ngModel)]="link.name"
                        (ngModelChange)="onChange($event)"
@@ -293,6 +295,7 @@
                   [name]="'link_s_'+idName+i"
                   [id]="'link_s_'+idName+i"
                   (change)="onChange($event)"
+                  i18n-placeholder="@@settings.searchQueryPlaceholder"
                   placeholder="Search Query">
 
                 </app-gallery-search-field>
@@ -325,6 +328,7 @@
 
               <div class="col ps-0">
                 <input type="text" class="form-control"
+                       i18n-placeholder="@@common.namePlaceholder"
                        placeholder="Name"
                        [(ngModel)]="item.name"
                        (ngModelChange)="onChange($event)"

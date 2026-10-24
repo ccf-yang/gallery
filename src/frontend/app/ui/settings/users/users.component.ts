@@ -4,6 +4,7 @@ import {UserDTO, UserRoles} from '../../../../../common/entities/UserDTO';
 import {AuthenticationService} from '../../../model/network/authentication.service';
 import {NavigationService} from '../../../model/navigation.service';
 import {NotificationService} from '../../../model/notification.service';
+import {BackendErrorTexts} from '../../../model/backend-error.texts';
 import {Utils} from '../../../../../common/Utils';
 import {ErrorCodes, ErrorDTO} from '../../../../../common/entities/Error';
 import {UsersSettingsService} from './users.service';
@@ -129,7 +130,7 @@ export class UsersComponent implements OnInit {
     } catch (e) {
       const err: ErrorDTO = e;
       this.notification.error(
-        err.message + ', ' + err.details,
+        BackendErrorTexts.localize(err.message) + ', ' + err.details,
         $localize`User creation error!`
       );
     }
@@ -197,7 +198,7 @@ export class UsersComponent implements OnInit {
     } catch (e) {
       const err: ErrorDTO = e;
       this.notification.error(
-        (err?.message || '') + (err?.details ? ', ' + err.details : ''),
+        (BackendErrorTexts.localize(err?.message) || '') + (err?.details ? ', ' + err.details : ''),
         $localize`Could not save user settings`
       );
     }

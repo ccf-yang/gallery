@@ -4,6 +4,7 @@ import {NetworkService} from './network/network.service';
 import {AuthenticationService} from './network/authentication.service';
 import {NotificationDTO, NotificationType,} from '../../../common/entities/NotificationDTO';
 import {UserDTO, UserRoles} from '../../../common/entities/UserDTO';
+import {BackendErrorTexts} from './backend-error.texts';
 
 export interface CountedNotificationDTO extends NotificationDTO {
   count: number;
@@ -46,6 +47,8 @@ export class NotificationService {
       [key: string]: { notification: NotificationDTO; count: number };
     } = {};
     notifications.forEach((n) => {
+      // 服务端通知文案是后端写死的英文，显示前先过一遍中文映射
+      n.message = BackendErrorTexts.localize(n.message);
       let key = n.message;
       if (n.details) {
         key += JSON.stringify(n.details);
@@ -74,7 +77,7 @@ export class NotificationService {
       this.countedNotifications.forEach((noti) => {
         let msg = '(' + noti.count + ') ' + noti.message;
         if (noti.details) {
-          msg += ' Details: ' + JSON.stringify(noti.details);
+          msg += ' ' + $localize`:@@notification.details:Details:` + ' ' + JSON.stringify(noti.details);
         }
         switch (noti.type) {
           case NotificationType.error:

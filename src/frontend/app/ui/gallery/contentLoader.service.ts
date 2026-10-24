@@ -1,5 +1,6 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import {NetworkService} from '../../model/network/network.service';
+import {BackendErrorTexts} from '../../model/backend-error.texts';
 import {ContentWrapperUtils, ContentWrapperWithError, PackedContentWrapperWithError} from '../../../../common/entities/ContentWrapper';
 import {SubDirectoryDTO,} from '../../../../common/entities/DirectoryDTO';
 import {GalleryCacheService} from './cache.gallery.service';
@@ -144,9 +145,9 @@ export class ContentLoaderService implements OnDestroy {
           searchResult: null
         } as PackedContentWrapperWithError;
         if (e.code === ErrorCodes.LocationLookUp_ERROR) {
-          cw.error = $localize`Cannot find location` + ': ' + e.message;
+          cw.error = $localize`Cannot find location` + ': ' + BackendErrorTexts.localize(e.message);
         } else {
-          cw.error = $localize`Unknown server error` + ': ' + e.message;
+          cw.error = $localize`Unknown server error` + ': ' + BackendErrorTexts.localize(e.message);
         }
       }
     }

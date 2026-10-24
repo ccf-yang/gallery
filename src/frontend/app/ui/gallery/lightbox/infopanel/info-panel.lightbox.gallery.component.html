@@ -1,7 +1,7 @@
 <div class="content d-flex flex-column bg-body">
   <div class="modal-header">
     <h2 class="modal-title" i18n>Info</h2>
-    <button type="button" class="btn-close" (click)="close()" aria-label="Close">
+    <button type="button" class="btn-close" (click)="close()" aria-label="Close" i18n-aria-label="@@common.close">
     </button>
   </div>
 
@@ -129,11 +129,11 @@
   </div>
 
   <div class="row" *ngIf="Rating">
-    <div class="col-1 ps-0" title="rating" p18n-rating>
+    <div class="col-1 ps-0" title="rating" i18n-title="@@lightbox.ratingTitle" p18n-rating>
       <ng-icon class="details-icon" name="ionStarOutline"></ng-icon>
     </div>
     <div class="col-11">
-      <div class="details-main" [title]="Rating + ' stars'">
+      <div class="details-main" [title]="Rating + ' ' + starsSuffix">
         <ng-icon *ngFor="let stars of [].constructor(Rating)" class="text-body me-1" name="ionStar"></ng-icon>
         <ng-icon *ngFor="let stars of [].constructor(5-Rating)" class="text-body-tertiary me-1"
                  name="ionStarOutline"></ng-icon>

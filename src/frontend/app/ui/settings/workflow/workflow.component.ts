@@ -91,6 +91,7 @@ export class WorkflowComponent implements ControlValueAccessor, Validator, OnIni
   };
   public readonly ConfigStyle = ConfigStyle;
   protected readonly SortByTypes = SortByTypes;
+  public readonly unknownJobTypePrefix = $localize`:@@workflow.unknownJobType:Unknown job type:`;
 
 
   error: string;
