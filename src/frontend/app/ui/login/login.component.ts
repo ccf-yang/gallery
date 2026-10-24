@@ -51,6 +51,9 @@ export class LoginComponent implements OnInit {
     } catch (error) {
       if (error && error.code === ErrorCodes.CREDENTIAL_NOT_FOUND) {
         this.loginError = true;
+      } else {
+        // 其它错误（网络、DI、服务端异常）不能让按钮点了没反应却什么都不说
+        console.error(error);
       }
     }
 

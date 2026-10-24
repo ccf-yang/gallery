@@ -27,9 +27,12 @@ export class AuthenticationService {
     this.user = new BehaviorSubject(null);
 
     // picking up session..
+    // ngx-cookie-service 取不到 cookie 时返回空字符串，而 '' != null 成立，
+    // 原来的写法会让每次打开页面都发一次 /user/me 请求（必然 401），
+    // 并因此在 AuthenticationService 构造期间触发拦截器的循环依赖。
     if (
       this.isAuthenticated() === false &&
-      this.cookieService.get(CookieNames.session) != null
+      this.cookieService.get(CookieNames.session).length > 0
     ) {
       if (
         typeof ServerInject !== 'undefined' &&
