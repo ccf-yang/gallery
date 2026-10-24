@@ -1,9 +1,11 @@
 # 产物要能在老设备上跑：Angular 链接器会输出 class 静态代码块（static{...}），
-# Safari/iOS 要到 16.4 才支持，16.3 直接语法报错 -> 页面永远停在 index.html 的 Loading 占位。
-# 这里显式把范围放宽到 iOS/Safari 14，让构建把它们降级掉。
+# Safari/iOS 要到 16.4 才支持，16.3 直接语法报错 -> 整个 bundle 不执行，
+# 页面永远停在 index.html 的 Loading 占位，也不会跳登录页（路由在前端）。
+# 下限取 16：让 babel 把 static 块降级，同时不要把 esbuild 的优化目标压得太低，
+# 否则它会因为 "Transforming destructuring ... is not supported yet" 直接构建失败。
 last 2 Chrome major versions
 last 2 Firefox major versions
 last 2 Edge major versions
-Safari >= 14
-iOS >= 14
+Safari >= 16
+iOS >= 16
 not dead
