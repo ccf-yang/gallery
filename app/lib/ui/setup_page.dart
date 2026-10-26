@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/app_state.dart';
+import '../core/platform_notes.dart';
 
 class SetupPage extends StatefulWidget {
   const SetupPage({super.key});
@@ -149,10 +150,10 @@ class _SetupPageState extends State<SetupPage> {
                     child: Text(_probing ? '正在试探…' : '以游客身份进入（公开图库）'),
                   ),
                   const SizedBox(height: 18),
-                  const Text(
-                    '会话 cookie 与密码存在 iOS 钥匙串里；退出登录会一并清掉。',
+                  Text(
+                    PlatformNotes.credentialHint,
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 11, color: Colors.white24),
+                    style: const TextStyle(fontSize: 11, color: Colors.white24),
                   ),
                 ],
               ),

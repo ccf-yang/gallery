@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../core/app_state.dart';
 import '../core/image_cache.dart';
 import '../core/models.dart';
+import '../core/platform_notes.dart';
 import 'widgets/media_grid.dart' show humanFileSize;
 
 class SettingsPage extends StatefulWidget {
@@ -119,7 +120,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('退出登录'),
-            subtitle: const Text('清掉钥匙串里的会话与密码'),
+            subtitle: Text(PlatformNotes.signOutHint),
             onTap: () async {
               await state.signOut();
               if (context.mounted) Navigator.of(context).pop();

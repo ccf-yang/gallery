@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'models.dart';
+import 'platform_notes.dart';
 
 /// 后端不可用 / 认证失败 / 返回体不符合预期时统一抛这个。
 class ApiFailure implements Exception {
@@ -297,15 +298,12 @@ class AppState extends ChangeNotifier {
 
   String get _serverHost => Uri.tryParse(_serverUrl)?.host ?? _serverUrl;
 
-  /// iOS 上「连不上」的几种典型形态，文案得能直接指路，不然只能瞎试。
-  /// errno 65 = EHOSTDOWN：本地网络权限被拒、或端上代理把局域网路由吞了，都会是这个。
+  /// 「连不上」的几种典型形态，文案得能直接指路，不然只能瞎试。
+  /// iOS errno 65 = EHOSTDOWN：本地网络权限被拒、或端上代理把局域网路由吞了，都会是这个。
   static String describeSocketError(Object error, String host) {
     final text = error.toString();
     if (text.contains('No route to host') || text.contains('errno = 65')) {
-      return '手机到 $host 没有路由（errno 65）。iOS 上通常是这两条之一：\n'
-          '① 没给「本地网络」权限 —— 设置 → 隐私与安全性 → 本地网络 → 打开 Gallery；'
-          '列表里找不到 Gallery 就卸载重装，首次点登录会弹框，选「允许」。\n'
-          '② 手机上的代理/VPN（TUN 全局）把局域网吞了 —— 把 $host 加进直连规则，或先关掉代理再试。';
+      return PlatformNotes.noRoute(host);
     }
     if (text.contains('Connection refused') || text.contains('errno = 61')) {
       return '$host 那个端口没在听（errno 61）。确认服务起来了、端口没填错，'

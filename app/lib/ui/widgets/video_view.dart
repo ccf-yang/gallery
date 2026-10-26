@@ -4,6 +4,7 @@ import 'package:video_player/video_player.dart';
 
 import '../../core/app_state.dart';
 import '../../core/models.dart';
+import '../../core/platform_notes.dart';
 
 /// 全屏播一段视频。这里只负责「当前这一页」的视频，
 /// 划走即销毁，PageView 默认不保留离屏页面，播放器不会堆积。
@@ -75,7 +76,7 @@ class _VideoStageState extends State<VideoStage> {
       if (!mounted) return;
       setState(() {
         _initializing = false;
-        _error = '这个格式 iPhone 播不了：$e';
+        _error = PlatformNotes.videoInitFailed(e);
       });
     }
   }
