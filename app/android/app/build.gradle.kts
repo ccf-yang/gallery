@@ -19,7 +19,9 @@ android {
         applicationId = "com.ccf.gallery"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        // flutter_secure_storage 11 在安卓上走 KeyStore（RSA-OAEP + AES/GCM），
+        // 最低 API 23；模板给的 flutter.minSdkVersion 可能更低，这里取大的。
+        minSdk = maxOf(23, flutter.minSdkVersion)
         targetSdk = flutter.targetSdkVersion
         // Uses the version code from pubspec.yaml. When using split APKs, 1000 * ABI_VERSION
         // is added automatically by Flutter. (https://developer.android.com/studio/build/configure-apk-splits#configure-APK-versions)
@@ -31,8 +33,8 @@ android {
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            // 有意用 debug key 签 release 包：这是自己人局域网用的产物，
+            // 能直接装就行，不需要保管 keystore。要上商店再换成自己的签名。
             signingConfig = signingConfigs.getByName("debug")
         }
     }
