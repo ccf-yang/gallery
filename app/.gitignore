@@ -1,0 +1,14 @@
+# Flutter/Dart 生成物，都不入库
+.dart_tool/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# 出包产物（workflow 直接在 runner 上发 Release）
+*.ipa
+*.apk
+*.aab
+
+# 杂项
+.DS_Store
+*.log
