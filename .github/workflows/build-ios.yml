@@ -157,6 +157,8 @@ jobs:
           name: gallery-ios-ipa
           path: app/${{ steps.pkg.outputs.ipa }}
           if-no-files-found: error
+          # Release 上已经有一份长期的，artifact 只是给本次 run 兜底，别占账号配额。
+          retention-days: 14
 
       - name: Publish to GitHub Releases
         env:
