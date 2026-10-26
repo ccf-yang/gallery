@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 局域网相册客户端：整份配置就为了「连得上自建的 http 服务」。 -->
+<network-security-config>
+    <!-- 盒子 / NAS 上的 PiGallery2 默认跑明文 http，Android 9 起默认禁明文。 -->
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+            <!-- 自建 https 通常是自签证书，允许用户自己装进系统信任。 -->
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

@@ -1,0 +1,147 @@
+name: Build Android APK
+
+# Gallery 安卓客户端（Flutter）。app/lib 是与 ios 分支共用的一份 Dart，
+# 平台目录 app/android 只在这个分支上。
+# 产物用 debug key 签名：能直接装、能上手就播，但不是 Play 商店包。
+
+on:
+  push:
+    branches: [android]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-android:
+    name: Gallery Android (APK)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+
+    defaults:
+      run:
+        working-directory: app
+
+    env:
+      FLUTTER_VERSION: '3.47.7'
+      ANDROID_COMPILE_SDK: '36'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 显式回到仓库根，才能在 app/ 缺失时给出人话而不是「工作目录不存在」。
+      - name: Guard app directory
+        working-directory: .
+        run: |
+          set -e
+          test -f app/pubspec.yaml || {
+            echo "::error::当前分支没有 app/pubspec.yaml，请到 Actions 里把分支选成 android"
+            exit 1
+          }
+          test -f app/android/app/build.gradle.kts || {
+            echo "::error::当前分支缺 app/android 平台目录"
+            exit 1
+          }
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      # AGP 9 / Flutter 追的 compileSdk 比 runner 预装的 platform 新，缺就补。
+      - name: Ensure Android SDK packages
+        run: |
+          set -e
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null 2>&1 || true
+          if [ ! -d "$ANDROID_HOME/platforms/android-$ANDROID_COMPILE_SDK" ]; then
+            echo "installing platforms;android-$ANDROID_COMPILE_SDK"
+            yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-$ANDROID_COMPILE_SDK"
+          fi
+          java -version
+          echo "ANDROID_HOME=$ANDROID_HOME"
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('app/android/**/*.kts', 'app/android/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: gradle-${{ runner.os }}-
+
+      - name: Toolchain
+        run: |
+          set -e
+          flutter --version | sed -n '1,3p'
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      # 明文 http 的相册服务器：少了这份配置，Android 9+ 会静默拦掉所有请求。
+      - name: Check cleartext config
+        run: |
+          set -e
+          grep -q 'networkSecurityConfig' android/app/src/main/AndroidManifest.xml
+          grep -q 'cleartextTrafficPermitted="true"' android/app/src/main/res/xml/network_security_config.xml
+          grep -q 'android.permission.INTERNET' android/app/src/main/AndroidManifest.xml
+          echo "cleartext + INTERNET ok"
+
+      - name: Build APK (release, universal)
+        run: flutter build apk --release
+
+      - name: Stage APK
+        id: pkg
+        run: |
+          set -e
+          V=$(grep -m1 '^version:' pubspec.yaml | sed 's/^version:[[:space:]]*//' | tr -d '\r')
+          SRC=build/app/outputs/flutter-apk/app-release.apk
+          test -f "$SRC"
+          APK="gallery-${V%%+*}-android.apk"
+          cp "$SRC" "$APK"
+          ls -lh "$APK"
+          echo "apk=$APK" >> "$GITHUB_OUTPUT"
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gallery-android-apk
+          path: app/${{ steps.pkg.outputs.apk }}
+          if-no-files-found: error
+
+      - name: Publish to GitHub Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          V="${{ steps.pkg.outputs.version }}"
+          TAG="android-$(echo "$V" | tr '+' '-')"
+          FILE="app/${{ steps.pkg.outputs.apk }}"
+          TITLE="Gallery Android $V"
+          cd "$GITHUB_WORKSPACE"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$FILE" --clobber
+            gh release edit "$TAG" --title "$TITLE" --latest
+          else
+            gh release create "$TAG" "$FILE" \
+              --title "$TITLE" \
+              --notes "debug 签名的 release 包，可直接安装（会覆盖同包名的其它签名版本）。commit ${{ github.sha }} / run #${{ github.run_number }}" \
+              --latest
+          fi
+          echo "https://github.com/${{ github.repository }}/releases/tag/$TAG"
